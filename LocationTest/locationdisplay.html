@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""/>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+
+    <style>
+        #mapid {
+            width: 1200px;
+            height: 800px;
+        }
+    </style>
+</head>
+<body>
+    <div id="mapid"></div>
+    <input type="file" name="inputfile" id="inputfile">
+
+    <script>
+        var map = L.map('mapid').setView([0, 0], 13);
+      
+        L.tileLayer( 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 28,
+            tileSize: 256,
+            //zoomOffset: -1,
+        }).addTo(map);
+      
+
+        document.getElementById('inputfile')
+        .addEventListener('change', function () {
+
+            let fileReader = new FileReader();
+            fileReader.onload = function () {
+                let parsedJSON = JSON.parse(fileReader.result);
+                console.log(parsedJSON);
+                for (i = 0; i < parsedJSON.length - 1; i++)
+                {
+                    if (parsedJSON[i]["latitude"] != 0 && parsedJSON[i]["longitude"] != 0)
+                    {
+                        //L.marker([parsedJSON[i]["latitude"], parsedJSON[i]["longitude"]]).addTo(map);
+                        // L.circle([parsedJSON[i]["latitude"], parsedJSON[i]["longitude"]], {
+                        //     color: 'red',
+                        //     fillColor: '#f03',
+                        //     fillOpacity: 0.5,
+                        //     radius: parsedJSON[i]["accuracy"]
+                        // }).addTo(map);
+                        L.polygon([
+                            [parsedJSON[i]["latitude"], parsedJSON[i]["longitude"]],
+                            [parsedJSON[i+1]["latitude"], parsedJSON[i+1]["longitude"]],
+                        ]).addTo(map);
+                    }
+                }
+            }
+            fileReader.readAsText(this.files[0]);
+        })
+    </script>
+</body>
+</html>
