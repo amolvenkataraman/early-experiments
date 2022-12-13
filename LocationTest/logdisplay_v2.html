@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/heatmap.js/2.0.0/heatmap.min.js" integrity="sha512-FpvmtV53P/z7yzv1TAIVH7PNz94EKXs5aV6ts/Zi+B/VeGU5Xwo6KIbwpTgKc0d4urD/BtkK50IC9785y68/AA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="leaflet-heatmap.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+
+    <style>
+        html, body {
+            margin: 0;
+            border: 0;
+            padding: 0;
+        }
+
+        #mapid {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10000;
+            background-color: #3498db;
+            padding: 10px;
+            border-radius: 5px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="mapid"></div>
+    <div class="file-input">
+        <input type="file" name="inputfile" id="photolog"><br>
+        <input type="file" name="inputfile" id="gpxinput"><br>
+        <input type="file" name="inputfile" id="llinput">
+    </div>
+
+    <script>
+        var map = L.map('mapid').setView([0, 0], 2);
+      
+        L.tileLayer( 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 28,
+            tileSize: 256,
+        }).addTo(map);
+
+        var cfg = {
+            "radius": 10,
+            "maxOpacity": .75,
+            "scaleRadius": false,
+            "useLocalExtrema": true,
+            latField: 'lat',
+            lngField: 'lng',
+            valueField: 'count'
+        };
+
+        var heatmapLayer = new HeatmapOverlay(cfg).addTo(map);
+      
+
+        document.getElementById('photolog')
+        .addEventListener('change', function () {
+
+            let fileReader = new FileReader();
+            fileReader.onload = function () {
+                let parsedJSON = JSON.parse(fileReader.result);
+                let pj1 = []
+                for (c of parsedJSON) {
+                    if (c[0] != 0 && c[1] != 0) {
+                        pj1.push({'lat': c[0], 'lng': c[1], 'count': 1})
+                    }
+                }
+                heatmapLayer.setData({'max': 1, 'data': pj1});
+            }
+            fileReader.readAsText(this.files[0]);
+        })
+
+        document.getElementById('gpxinput')
+        .addEventListener('change', function () {
+
+            let fileReader = new FileReader();
+            fileReader.onload = function () {
+                var gpx = fileReader.result; // URL to your GPX file or the GPX itself
+                new L.GPX(gpx, {async: true}).on('loaded', function(e) {
+                map.fitBounds(e.target.getBounds());
+                }).addTo(map);
+            }
+            fileReader.readAsText(this.files[0]);
+        })
+
+        document.getElementById('llinput')
+        .addEventListener('change', function () {
+
+            let fileReader = new FileReader();
+            fileReader.onload = function () {
+                let parsedJSON = JSON.parse(fileReader.result);
+                for (i = 0; i < parsedJSON.length - 1; i++)
+                {
+                    if (parsedJSON[i]["latitude"] != 0 && parsedJSON[i]["longitude"] != 0)
+                    {
+                        L.polygon([
+                            [parsedJSON[i]["latitude"], parsedJSON[i]["longitude"]],
+                            [parsedJSON[i+1]["latitude"], parsedJSON[i+1]["longitude"]],
+                        ]).addTo(map);
+                    }
+                }
+            }
+            fileReader.readAsText(this.files[0]);
+        })
+    </script>
+</body>
+</html>
