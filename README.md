@@ -2,6 +2,9 @@
 
 <a href="https://haiscale.amolven.com/"><img alt="HAI Scale: code H (fully human), README A1 (mostly automated). Original 2021–22 code; README added in 2026 with AI help." src=".github/assets/hai.svg" width="100%"></a>
 
+> [!IMPORTANT]
+> **This repository is archived for preservation.** These are rough 2021–22 experiments, kept to show they existed. They aren't maintained and aren't meant for real use; dependencies are old and code has hardcoded paths.
+
 > **About this repo:** the code is my original work from 2021–2022. The only edits remove a private map location and an old API token. The commit history was rebuilt in 2026 from the files' original dates. This README and the licence were added in 2026 with AI help.
 
 Small computer vision and mapping experiments from 2021-2022. Each folder is a separate
